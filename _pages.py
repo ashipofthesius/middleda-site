@@ -22,7 +22,7 @@ home=f"""
 {docket("The Blog","From the District Attorney")}
 <div class="wrap" style="max-width:820px">
 {cards}
-<p style="font-family:'Archivo',Arial,sans-serif;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Follow by <a href="feed.xml">RSS</a> or on <a href="https://www.facebook.com/TrippFitznerDA">Facebook</a></p>
+<p style="margin-top:2rem"><a href="https://www.facebook.com/TrippFitznerDA" style="display:inline-block;background:var(--navy);color:#fff;text-decoration:none;font-family:'Archivo',Arial,sans-serif;font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;padding:.85rem 1.6rem;border:1px solid var(--ink);box-shadow:4px 4px 0 var(--garnet)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:.6rem"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.7 4.53-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.1 24 12.07z"/></svg>Follow on Facebook</a>&nbsp;&nbsp;<a href="feed.xml" style="font-family:'Archivo',Arial,sans-serif;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">or subscribe by RSS</a></p>
 </div>
 
 <div class="numbers"><div class="numbers-inner">
