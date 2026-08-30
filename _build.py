@@ -7,7 +7,7 @@ JSONLD={
   {"@type":"Person","@id":"https://middleda.org/#tripp","name":"John A. Fitzner III","alternateName":"Tripp Fitzner",
    "jobTitle":"District Attorney","worksFor":{"@id":"https://middleda.org/#office"},
    "alumniOf":[{"@type":"CollegeOrUniversity","name":"Georgia Southern University"},{"@type":"CollegeOrUniversity","name":"University of Dayton School of Law"}],
-   "image":"https://middleda.org/img/tripp-fitzner-portrait.jpg","telephone":"+1-478-237-7846","url":"https://middleda.org/about.html",
+   "image":"https://middleda.org/img/tripp-fitzner-portrait.jpg","telephone":"+1-478-237-7846","email":"tripp@trippfitzner.net","url":"https://middleda.org/about.html",
    "sameAs":["https://www.facebook.com/TrippFitznerDA","https://www.instagram.com/trippfitzner"]},
   {"@type":"GovernmentOrganization","@id":"https://middleda.org/#office",
    "name":"Office of the District Attorney, Middle Judicial Circuit of Georgia",

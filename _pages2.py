@@ -131,7 +131,8 @@ contact=f"""
 {docket("No. 1","Contact the Office")}
 <div class="wrap prose">
 <p><strong>Office of the District Attorney, Middle Judicial Circuit of Georgia</strong><br>
-{ADDRESS}<br><strong>Phone:</strong> {PHONE}</p>
+{ADDRESS}<br><strong>Phone:</strong> {PHONE}<br>
+<strong>Email:</strong> <a href="mailto:tripp@trippfitzner.net">tripp@trippfitzner.net</a></p>
 <p><strong>Hours:</strong> Monday through Friday, 8:00 a.m. to 5:00 p.m. Closed weekends and state holidays.</p>
 <div class="notice"><div class="t">Open Records</div>
 <p>Investigator Rocky Davis is the open records official for this office. He may be reached via email at <a href="mailto:jrdavis@pacga.org">jrdavis@pacga.org</a> or at the Lyons Office at (912) 526-5211. Requests under the Georgia Open Records Act may be directed to him. Closed-case dispositions are public record.</p></div>
@@ -175,6 +176,7 @@ since 2021. The office prosecutes all felonies in the five counties and
 represents the State on appeal.
 
 Office: 114 Jefferson Street, Swainsboro, GA 30401. Phone: (478) 237-7846.
+Email: tripp@trippfitzner.net
 Hours: Monday-Friday 8:00 a.m.-5:00 p.m.
 Open records official: Investigator Rocky Davis, jrdavis@pacga.org, (912) 526-5211.
 
