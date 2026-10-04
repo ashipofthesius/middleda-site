@@ -1,13 +1,29 @@
 import pathlib, re, html, email.utils, datetime
 exec(open("_build.py").read())
 
-def load_posts():
+def today_eastern():
+    # The office is in Georgia; a post dated today should appear today, not
+    # when it is already today in Greenwich.
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.datetime.now(ZoneInfo("America/New_York")).date()
+    except Exception:
+        return datetime.date.today()
+
+def load_posts(include_future=False):
+    """Posts dated after today are scheduled, not published: they stay in
+    posts/ and out of the site until their date arrives (2026-10-03, so one
+    approval can schedule the site and the Facebook Page for the same day)."""
     out=[]
+    today=today_eastern()
     for p in sorted(pathlib.Path("posts").glob("*.html"), reverse=True):
         raw=p.read_text(encoding="utf-8")
         head,body=raw.split("---",1)
         meta=dict(l.split(":",1) for l in head.strip().splitlines())
         title=meta["title"].strip(); date=meta["date"].strip()
+        if not include_future and datetime.date.fromisoformat(date) > today:
+            print("scheduled, not built yet:", p.name, "(", date, ")")
+            continue
         slug=p.stem+".html"
         out.append({"title":title,"date":date,"body":body.strip(),"slug":"post-"+slug})
     return out

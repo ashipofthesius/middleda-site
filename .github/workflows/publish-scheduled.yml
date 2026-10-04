@@ -1,0 +1,52 @@
+# Publishes scheduled posts when their date arrives.
+#
+# A post in posts/ dated in the future is skipped by the build, so it can be
+# committed ahead of time. This job rebuilds the site every 15 minutes; when a
+# post's date arrives it gets built, committed, and the live site is refreshed.
+# It only commits when something changed, so most runs do nothing.
+# Added 2026-10-03 so one approval can schedule the Facebook Page and this
+# site for the same day.
+name: Publish scheduled posts
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: publish-scheduled
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the site
+        run: |
+          python3 _posts.py
+          python3 _pages.py
+          python3 _pages2.py
+          python3 _redirects.py
+      - name: Commit if anything changed
+        id: commit
+        run: |
+          git config user.name "middleda-site publisher"
+          git config user.email "tripp@trippfitzner.net"
+          if git diff --quiet; then
+            echo "changed=no" >> "$GITHUB_OUTPUT"
+            echo "nothing to publish"
+          else
+            git add -A
+            git commit -m "Publish scheduled post(s) $(date -u +%Y-%m-%dT%H:%MZ)"
+            git push
+            echo "changed=yes" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Refresh the live site
+        if: steps.commit.outputs.changed == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X POST "repos/${{ github.repository }}/pages/builds"
