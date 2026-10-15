@@ -1,35 +1,55 @@
 import pathlib, re, html, email.utils, datetime
 exec(open("_build.py").read())
 
-def today_eastern():
-    # The office is in Georgia; a post dated today should appear today, not
-    # when it is already today in Greenwich.
+def now_eastern():
+    # The office is in Georgia; a post goes up on Georgia's clock, not
+    # Greenwich's.
     try:
         from zoneinfo import ZoneInfo
-        return datetime.datetime.now(ZoneInfo("America/New_York")).date()
+        return datetime.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
     except Exception:
-        return datetime.date.today()
+        return datetime.datetime.now()
+
+def goes_live(meta):
+    """When a post may appear: its date at its `time:` line (24-hour Eastern,
+    e.g. `time: 18:00`), or midnight when there is no time line. 2026-10-15:
+    a post dated that day went up on the site at 4 a.m. while the Facebook
+    copy was scheduled for 6 p.m.; the time line keeps the two together."""
+    d=datetime.date.fromisoformat(meta["date"].strip())
+    t=meta.get("time","").strip()
+    hh,mm=(int(x) for x in t.split(":")) if t else (0,0)
+    return datetime.datetime(d.year,d.month,d.day,hh,mm)
 
 def load_posts(include_future=False):
-    """Posts dated after today are scheduled, not published: they stay in
-    posts/ and out of the site until their date arrives (2026-10-03, so one
-    approval can schedule the site and the Facebook Page for the same day)."""
+    """Posts not yet due are scheduled, not published: they stay in posts/
+    and out of the site until their date and time arrive (2026-10-03, so one
+    approval can schedule the site and the Facebook Page together)."""
     out=[]
-    today=today_eastern()
+    now=now_eastern()
     for p in sorted(pathlib.Path("posts").glob("*.html"), reverse=True):
         raw=p.read_text(encoding="utf-8")
         head,body=raw.split("---",1)
         meta=dict(l.split(":",1) for l in head.strip().splitlines())
         title=meta["title"].strip(); date=meta["date"].strip()
-        if not include_future and datetime.date.fromisoformat(date) > today:
-            print("scheduled, not built yet:", p.name, "(", date, ")")
+        if not include_future and goes_live(meta) > now:
+            print("scheduled, not built yet:", p.name, "(", goes_live(meta).strftime("%Y-%m-%d %H:%M"), "Eastern )")
             continue
         slug=p.stem+".html"
         out.append({"title":title,"date":date,"body":body.strip(),"slug":"post-"+slug})
     return out
 
+def remove_unscheduled(posts):
+    """A post page whose post is no longer due (moved to a later date) comes
+    down; otherwise the old page stays up at its old address. Only touches
+    generated post-YYYY-MM-DD-*.html pages at the top of the site."""
+    keep={po["slug"] for po in posts}
+    for f in pathlib.Path(".").glob("post-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*.html"):
+        if f.name not in keep:
+            f.unlink(); print("taken down (not due):", f.name)
+
 def build_posts():
     posts=load_posts()
+    remove_unscheduled(posts)
     for po in posts:
         d=datetime.date.fromisoformat(po["date"])
         body=f"""
