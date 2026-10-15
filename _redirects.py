@@ -14,7 +14,7 @@ REDIRECTS = {
     "contact-me": "contact.html",
     "victim-services": "victims.html",
     "open-records": "contact.html",
-    "blog": "index.html",
+    "blog": "blog.html",
     "photo-gallery": "index.html",
     "home": "index.html",
 }

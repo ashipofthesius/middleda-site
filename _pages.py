@@ -4,13 +4,69 @@ exec(open("_posts.py").read().split('if __name__')[0])
 
 # ---------- HOME: blog front ----------
 posts=load_posts()
-cards=""
-for po in posts[:6]:
+
+def _excerpt(body, words=34):
+    """The first paragraph with words in it (the first <p> is often the
+    picture), cut at a word boundary."""
+    import re
+    for para in re.findall(r"<p[^>]*>(.*?)</p>", body, flags=re.S):
+        text=re.sub(r"<[^>]+>","",para).strip()
+        if text:
+            w=text.split()
+            return html.escape(" ".join(w[:words]))+("&hellip;" if len(w)>words else "")
+    return ""
+
+def _thumb(body):
+    import re
+    m=re.search(r'<img[^>]*src="([^"]+)"[^>]*?(?:alt="([^"]*)")?[^>]*>', body)
+    if not m: return ""
+    alt=re.search(r'alt="([^"]*)"', m.group(0))
+    return f'<a class="entry-pic" href="{{slug}}" tabindex="-1" aria-hidden="true"><img src="{m.group(1)}" alt="{alt.group(1) if alt else ""}" loading="lazy"></a>'
+
+def post_row(po):
+    """One post in a list: small picture, date, title, a few lines, the link.
+    2026-10-15: the home page used each post's first paragraph as its
+    preview, which for the photo posts was the full-size picture, so the
+    front page was one long scroll of pictures."""
     d=datetime.date.fromisoformat(po["date"])
-    first_p=po["body"].split("</p>")[0].replace("<p>","")+"&hellip;"
-    cards+=f"""<article class="case" style="margin:2rem 0"><div class="meta">{d.strftime("%B %d, %Y")}</div>
-<div class="style" style="font-size:1.3rem"><a href="{po['slug']}" style="text-decoration:none;color:var(--ink)">{html.escape(po['title'])}</a></div>
-<p>{first_p}</p><p><a href="{po['slug']}">Read the post &rarr;</a></p></article>"""
+    pic=_thumb(po["body"]).replace("{slug}",po["slug"])
+    return f"""<article class="entry{' has-pic' if pic else ''}">{pic}<div class="entry-text">
+<div class="entry-date">{d.strftime("%B %d, %Y").replace(" 0"," ")}</div>
+<h3 class="entry-title"><a href="{po['slug']}">{html.escape(po['title'])}</a></h3>
+<p class="entry-excerpt">{_excerpt(po["body"])}</p>
+<a class="entry-more" href="{po['slug']}">Read the post &rarr;</a></div></article>"""
+
+HOME_COUNT=5
+cards="".join(post_row(po) for po in posts[:HOME_COUNT])
+if len(posts)>HOME_COUNT:
+    cards+=f'<p class="entry-all"><a href="blog.html">All {len(posts)} posts &rarr;</a></p>'
+elif posts:
+    cards+='<p class="entry-all"><a href="blog.html">All posts &rarr;</a></p>'
+
+# ---------- BLOG: every post, ten to a page ----------
+PER_PAGE=10
+pages_n=max(1,-(-len(posts)//PER_PAGE))
+def blog_path(n): return "blog.html" if n==1 else f"blog-{n}.html"
+for n in range(1,pages_n+1):
+    chunk=posts[(n-1)*PER_PAGE:n*PER_PAGE]
+    nav=""
+    if pages_n>1:
+        newer=f'<a href="{blog_path(n-1)}">&larr; Newer posts</a>' if n>1 else "<span></span>"
+        older=f'<a href="{blog_path(n+1)}">Older posts &rarr;</a>' if n<pages_n else "<span></span>"
+        nav=f'<nav class="entry-pages" aria-label="More posts">{newer}<span class="entry-pageno">Page {n} of {pages_n}</span>{older}</nav>'
+    body=f"""
+{docket("The Blog" if n==1 else f"Page {n}","From the District Attorney")}
+<div class="wrap entries">
+{"".join(post_row(po) for po in chunk) or '<p>No posts yet.</p>'}
+{nav}
+<p class="entry-all"><a href="index.html">&larr; Home</a></p>
+</div>"""
+    page(blog_path(n),"From the District Attorney"+("" if n==1 else f", page {n}")+" — Tripp Fitzner",
+         "Posts from Tripp Fitzner, District Attorney of the Middle Judicial Circuit of Georgia.",body)
+# a page left over from a time when there were more posts comes down
+import pathlib as _pl
+for f in _pl.Path(".").glob("blog-[0-9]*.html"):
+    if int(f.stem.split("-")[1])>pages_n: f.unlink()
 
 home=f"""
 <div class="hero" style="padding-bottom:1.6rem">
@@ -20,7 +76,7 @@ home=f"""
 </div>
 
 {docket("The Blog","From the District Attorney")}
-<div class="wrap" style="max-width:820px">
+<div class="wrap entries">
 {cards}
 <p style="margin-top:2rem"><a href="https://www.facebook.com/TrippFitznerDA" style="display:inline-block;background:var(--navy);color:#fff;text-decoration:none;font-family:'Archivo',Arial,sans-serif;font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;padding:.85rem 1.6rem;border:1px solid var(--ink);box-shadow:4px 4px 0 var(--garnet)"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px;margin-right:.6rem"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.7 4.53-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.51c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.09 24 18.1 24 12.07z"/></svg>Follow on Facebook</a>&nbsp;&nbsp;<a href="feed.xml" style="font-family:'Archivo',Arial,sans-serif;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">or subscribe by RSS</a></p>
 </div>

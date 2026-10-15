@@ -162,7 +162,10 @@ Sitemap: https://middleda.org/sitemap.xml
 """)
 pages=["index.html","about.html","record.html","circuit.html","victims.html","files.html","contact.html"]
 import pathlib
-pages+= ["post-"+p.stem+".html" for p in pathlib.Path("posts").glob("*.html")]
+# only posts that are due: a scheduled post's address must not be published early
+exec(open("_posts.py").read().split('if __name__')[0])
+pages+= [po["slug"] for po in load_posts()]
+pages+= sorted(p.name for p in pathlib.Path(".").glob("blog*.html"))
 urls="".join(f"<url><loc>https://middleda.org/{p}</loc></url>" for p in pages)
 open("sitemap.xml","w").write(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>')
 open("llms.txt","w").write("""# Tripp Fitzner — District Attorney, Middle Judicial Circuit of Georgia
