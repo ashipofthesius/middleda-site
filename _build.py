@@ -37,7 +37,10 @@ def HEAD(title,desc,path):
 
 def masthead(current):
     items=[("index.html","Home"),("about.html","About Tripp"),("record.html","The Record"),("circuit.html","The Circuit"),("victims.html","Victim Services"),("files.html","Files &amp; Policies"),("contact.html","Contact")]
-    nav="".join(f'<li><a href="{h}"{" aria-current=\"page\"" if h==current else ""}>{t}</a></li>' for h,t in items)
+    # No backslash inside the f-string braces: the cloud publisher runs Python
+    # 3.11, which refuses that (2026-10-15 test run).
+    cur=' aria-current="page"'
+    nav="".join(f'<li><a href="{h}"{cur if h==current else ""}>{t}</a></li>' for h,t in items)
     return f"""<header class="masthead"><div class="masthead-inner">
 <div class="name"><a href="index.html">Tripp Fitzner</a></div>
 <div class="office">District Attorney &middot; Middle Judicial Circuit of Georgia</div>
